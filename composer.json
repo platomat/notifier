@@ -1,0 +1,30 @@
+{
+  "name": "platomat/notifier",
+  "description": "Email notification system with server/client architecture",
+  "type": "library",
+  "license": "",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.3",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "phpmailer/phpmailer": "^6.8",
+    "platomat/platon": "^1.0"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:platomat/platon.git"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Platomat\\": "src/Platomat/"
+    }
+  },
+  "authors": [
+    {
+      "name": "wasilij.de"
+    }
+  ]
+}

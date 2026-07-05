@@ -1,0 +1,8 @@
+/data/notifier/clients/
+/logs/
+/tmp/
+/vendor/
+/cli-test-client-local.php
+/index.php
+/test-server-local.php
+/composer.lock

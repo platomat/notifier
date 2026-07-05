@@ -1,0 +1,44 @@
+# Set index.php as directory index
+DirectoryIndex index.php
+
+RewriteEngine On
+
+# Force HTTPS only in production (not for *.test, localhost, or local IPs)
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} !\.test$ [NC]
+RewriteCond %{HTTP_HOST} !^localhost$ [NC]
+RewriteCond %{HTTP_HOST} !^127\.0\.0\.1$ [NC]
+RewriteCond %{HTTP_HOST} !^192\.168\. [NC]
+RewriteCond %{HTTP_HOST} !^10\. [NC]
+RewriteCond %{HTTP_HOST} !^172\.(1[6-9]|2[0-9]|3[0-1])\. [NC]
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Deny access to sensitive directories
+RewriteCond %{REQUEST_URI} ^/(src|config|data|clients|logs|tmp|vendor)/ [NC]
+RewriteRule .* - [R=404,L]
+
+# Deny access to CLI scripts
+RewriteCond %{REQUEST_URI} ^/cli-.+\.php$ [NC]
+RewriteRule .* - [R=404,L]
+
+# Route everything else to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ index.php [L]
+
+# Deny access to sensitive files via URL
+<FilesMatch "^(\.git|\.env|composer\.(json|lock)|readme\.md)$">
+    Require all denied
+</FilesMatch>
+
+# Deny access to .git and other dot files
+RedirectMatch 404 /\..*
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
