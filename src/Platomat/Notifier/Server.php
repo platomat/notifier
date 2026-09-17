@@ -347,6 +347,9 @@ class Server extends Base {
       $mail->Password   = $smtpConfig['password'];
       $mail->SMTPSecure = $smtpConfig['encryption'] ?? PHPMailer::ENCRYPTION_STARTTLS;
       $mail->Port       = $smtpConfig['port'] ?? 587;
+      // Body/Subject are UTF-8 (JSON API). Default CharSet is iso-8859-1 → mojibake (Ãœ…).
+      $mail->CharSet    = PHPMailer::CHARSET_UTF8;
+      $mail->Encoding   = PHPMailer::ENCODING_BASE64;
 
       // JSON API body/subject are UTF-8; PHPMailer defaults to iso-8859-1 and causes mojibake
       $mail->CharSet   = PHPMailer::CHARSET_UTF8;
