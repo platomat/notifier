@@ -3,8 +3,10 @@ DirectoryIndex index.php
 
 RewriteEngine On
 
-# Force HTTPS only in production (not for *.test, localhost, or local IPs)
+# Force HTTPS in production (not for *.test, localhost, or local IPs).
+# Check both Apache HTTPS and X-Forwarded-Proto (needed behind nginx/Cloudflare SSL termination).
 RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
 RewriteCond %{HTTP_HOST} !\.test$ [NC]
 RewriteCond %{HTTP_HOST} !^localhost$ [NC]
 RewriteCond %{HTTP_HOST} !^127\.0\.0\.1$ [NC]

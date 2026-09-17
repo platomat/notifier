@@ -35,6 +35,7 @@ class Common {
 
   /**
    * Check if the current request uses HTTPS (with local dev exceptions).
+   * Behind a reverse proxy, X-Forwarded-Proto is trusted only when REMOTE_ADDR is in trustedProxies.
    */
   public static function isSecureConnection (): bool {
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
@@ -43,6 +44,15 @@ class Common {
 
     if (($_SERVER['SERVER_PORT'] ?? '') == 443) {
       return true;
+    }
+
+    $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? '';
+    $trustedProxies = Config::read('NotifierServer.default.trustedProxies', []);
+    if (!empty($trustedProxies) && in_array($remoteAddr, $trustedProxies, true)) {
+      $forwardedProto = strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '');
+      if ($forwardedProto === 'https') {
+        return true;
+      }
     }
 
     $host = $_SERVER['HTTP_HOST'] ?? '';
