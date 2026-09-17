@@ -62,6 +62,16 @@ Besides server URL and API key, the client config includes:
 
 If a matching client already exists, the existing API key is printed. Otherwise a new key is generated and saved.
 
+Requires PHP 8.3+. If the default `php` binary is older (e.g. 8.1), select the correct binary via env or flag:
+
+```bash
+PHP_BIN=php8.3 ./cli-create-client-access.sh
+./cli-create-client-access.sh --php php8.3
+./cli-create-client-access.sh -p /usr/bin/php8.3
+```
+
+`--php` / `-p` override `PHP_BIN`. Default is `php`.
+
 ### Debug Mode
 
 When `debug => true` in config:
@@ -112,10 +122,12 @@ No statistics or metrics are collected beyond debug logging.
 
 4. **Create Client Access:**
    ```bash
-   # use bash for interactive client setup
-   /bin/bash cli-create-client-access.sh
+   # interactive client setup (needs PHP 8.3+)
+   PHP_BIN=php8.3 ./cli-create-client-access.sh
    # OR
-   php create-client-access.php <allowedFrom> <$allowedTo> <allowedHosts>
+   ./cli-create-client-access.sh --php php8.3
+   # OR call PHP directly
+   php8.3 cli-create-client-access.php <allowedFrom> <allowedTo> <allowedHosts> [description]
    ```
 
 5. **Set Permissions:**
