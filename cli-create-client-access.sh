@@ -9,9 +9,43 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PHP_SCRIPT="$SCRIPT_DIR/cli-create-client-access.php"
 
+# PHP binary: env PHP_BIN, or --php / -p, fallback to "php"
+# Examples:
+#   PHP_BIN=php8.3 ./cli-create-client-access.sh
+#   ./cli-create-client-access.sh --php php8.3
+#   ./cli-create-client-access.sh -p /usr/bin/php8.3
+PHP_BIN="${PHP_BIN:-php}"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --php)
+            PHP_BIN="$2"
+            shift 2
+            ;;
+        --php=*)
+            PHP_BIN="${1#*=}"
+            shift
+            ;;
+        -p)
+            PHP_BIN="$2"
+            shift 2
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
 # Check if PHP script exists
 if [ ! -f "$PHP_SCRIPT" ]; then
     echo "Error: PHP script not found: $PHP_SCRIPT"
+    exit 1
+fi
+
+# Check if PHP binary is available
+if ! command -v "$PHP_BIN" >/dev/null 2>&1 && [ ! -x "$PHP_BIN" ]; then
+    echo "Error: PHP binary not found: $PHP_BIN"
+    echo "Set PHP_BIN or use --php / -p (e.g. PHP_BIN=php8.3 or --php php8.3)"
     exit 1
 fi
 
@@ -31,11 +65,17 @@ validate_email() {
 
 # Function to show usage
 show_usage() {
-    echo "Usage: $0 [allowed_from] [allowed_to] [allowed_hosts] [description]"
+    echo "Usage: $0 [--php BIN] [allowed_from] [allowed_to] [allowed_hosts] [description]"
     echo
     echo "If no parameters provided:"
     echo "  - Interactive mode will start"
     echo "  - Or create default access with full permissions"
+    echo
+    echo "PHP binary (needs PHP 8.3+):"
+    echo "  PHP_BIN=php8.3 $0                     # via environment variable"
+    echo "  $0 --php php8.3                       # via flag"
+    echo "  $0 -p /usr/bin/php8.3                 # short flag / absolute path"
+    echo "  Default: php (or \$PHP_BIN if set)"
     echo
     echo "Parameters:"
     echo "  allowed_from   : Sender email restriction (optional)"
@@ -69,8 +109,8 @@ if [[ $# -gt 0 ]]; then
         exit 1
     fi
 
-    echo "Creating client access with provided parameters..."
-    php "$PHP_SCRIPT" "$allowed_from" "$allowed_to" "$allowed_hosts" "$description"
+    echo "Creating client access with provided parameters (PHP: $PHP_BIN)..."
+    "$PHP_BIN" "$PHP_SCRIPT" "$allowed_from" "$allowed_to" "$allowed_hosts" "$description"
     exit $?
 fi
 
@@ -88,8 +128,8 @@ read -r choice
 case $choice in
     1)
         echo
-        echo "Creating default client access with full permissions..."
-        php "$PHP_SCRIPT" '' '' '' ''
+        echo "Creating default client access with full permissions (PHP: $PHP_BIN)..."
+        "$PHP_BIN" "$PHP_SCRIPT" '' '' '' ''
         ;;
     2)
         echo
@@ -147,8 +187,8 @@ case $choice in
         fi
 
         echo
-        echo "Creating client access..."
-        php "$PHP_SCRIPT" "$allowed_from" "$allowed_to" "$allowed_hosts" "$description"
+        echo "Creating client access (PHP: $PHP_BIN)..."
+        "$PHP_BIN" "$PHP_SCRIPT" "$allowed_from" "$allowed_to" "$allowed_hosts" "$description"
         ;;
     *)
         echo "Invalid choice. Exiting."
