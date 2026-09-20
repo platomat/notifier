@@ -42,6 +42,7 @@ Centralized email delivery: client systems send HTTP requests to a notifier serv
 ### Email Behaviour
 
 - HTML emails only; no CC/BCC
+- UTF-8 MIME: both SMTP (PHPMailer) and PHP `mail()` send HTML as `charset=UTF-8` with base64 transfer encoding so umlauts and other non-ASCII characters render correctly
 - Attachments planned for a later version
 - Server: configurable primary method (`mail()` or SMTP) with automatic fallback to the other method
 - Client: up to 3 retry attempts; failures are saved to `tmp/failures/`
