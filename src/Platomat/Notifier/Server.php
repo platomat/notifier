@@ -348,6 +348,10 @@ class Server extends Base {
       $mail->SMTPSecure = $smtpConfig['encryption'] ?? PHPMailer::ENCRYPTION_STARTTLS;
       $mail->Port       = $smtpConfig['port'] ?? 587;
 
+      // JSON API body/subject are UTF-8; PHPMailer defaults to iso-8859-1 and causes mojibake
+      $mail->CharSet   = PHPMailer::CHARSET_UTF8;
+      $mail->Encoding  = PHPMailer::ENCODING_BASE64;
+
       // Recipients
       $mail->setFrom($emailData['from']);
 
@@ -381,6 +385,7 @@ class Server extends Base {
     $headers = [
       'MIME-Version: 1.0',
       'Content-type: text/html; charset=UTF-8',
+      'Content-Transfer-Encoding: base64',
       'From: ' . $emailData['from'],
       'Reply-To: ' . $emailData['from'],
       'X-Mailer: PHP/' . phpversion()
@@ -390,7 +395,7 @@ class Server extends Base {
     $success = mail(
       $emailData['to'], // PHP mail() supports comma-separated recipients
       $emailData['subject'],
-      $emailData['message'],
+      base64_encode($emailData['message']),
       implode("\r\n", $headers)
     );
 
