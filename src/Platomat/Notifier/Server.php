@@ -160,19 +160,17 @@ class Server extends Base {
         $allowedRecipients = $clientData['allowed_to'];
       }
 
-      // Check if wildcard is allowed
-      if (!in_array('*', $allowedRecipients)) {
-        // Validate each recipient against allowed list
-        $requestRecipients = array_map('trim', explode(',', $requestData['to']));
-        foreach ($requestRecipients as $recipient) {
-          if (!in_array($recipient, $allowedRecipients)) {
-            $this->logger->warning('Recipient not allowed for client', [
-              'recipient' => $recipient,
-              'allowed_to' => $allowedRecipients
-            ]);
-            return ['valid' => false, 'status' => 403, 'message' => 'Check emailTo'];
-          }
+      // Validate each recipient against allowed list (exact, *, @domain, *@domain)
+      $requestRecipients = array_map('trim', explode(',', $requestData['to']));
+      foreach ($requestRecipients as $recipient) {
+        if ($recipient === '' || Common::isRecipientAllowed($recipient, $allowedRecipients)) {
+          continue;
         }
+        $this->logger->warning('Recipient not allowed for client', [
+          'recipient' => $recipient,
+          'allowed_to' => $allowedRecipients
+        ]);
+        return ['valid' => false, 'status' => 403, 'message' => 'Check emailTo'];
       }
     }
 

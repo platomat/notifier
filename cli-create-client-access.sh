@@ -79,7 +79,7 @@ show_usage() {
     echo
     echo "Parameters:"
     echo "  allowed_from   : Sender email restriction (optional)"
-    echo "  allowed_to     : Recipient restriction (* = all, comma-separated)"
+    echo "  allowed_to     : Recipient restriction (* = all, email, @domain / *@domain, comma-separated)"
     echo "  allowed_hosts  : Allowed hosts/IPs (comma-separated)"
     echo "  description    : Description for this client access (optional)"
     echo
@@ -153,7 +153,8 @@ case $choice in
         echo "Allowed Recipients:"
         echo "  * = Allow all recipients"
         echo "  user@example.com = Only this recipient"
-        echo "  user1@example.com,user2@example.com = Multiple specific recipients"
+        echo "  @example.com or *@example.com = Any recipient at that domain"
+        echo "  user@example.com,@other.com = Mix exact and domain patterns"
         echo "  (empty) = No restrictions"
         echo -n "Enter allowed recipients: "
         read -r allowed_to

@@ -149,6 +149,49 @@ class Common {
 
 
   /**
+   * Check if recipient email is allowed.
+   * Supports exact addresses, '*' (all), and domain patterns '@domain.tld' / '*@domain.tld'.
+   */
+  public static function isRecipientAllowed (string $recipient, array $allowedRecipients): bool {
+    if (empty($allowedRecipients) || in_array('*', $allowedRecipients, true)) {
+      return true;
+    }
+
+    $recipient = strtolower(trim($recipient));
+    $atPos = strrpos($recipient, '@');
+    if ($atPos === false) {
+      return false;
+    }
+    $recipientDomain = substr($recipient, $atPos); // includes leading '@'
+
+    foreach ($allowedRecipients as $allowed) {
+      $allowed = strtolower(trim((string) $allowed));
+      if ($allowed === '') {
+        continue;
+      }
+      if ($allowed === '*') {
+        return true;
+      }
+
+      // Domain wildcard: @domain.tld or *@domain.tld
+      if (str_starts_with($allowed, '@') || str_starts_with($allowed, '*@')) {
+        $allowedDomain = str_starts_with($allowed, '*@') ? substr($allowed, 1) : $allowed;
+        if ($recipientDomain === $allowedDomain) {
+          return true;
+        }
+        continue;
+      }
+
+      if ($recipient === $allowed) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+
+  /**
    * Check if IP address is in allowed list.
    */
   public static function isIpAllowed (string $clientIp, array $allowedIps): bool {
